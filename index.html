@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE GLASS UNIVERSE</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #999999; 
+            --accent-color: #a5b4fc; 
+            --side-gap: 15%; /* 稍微加宽留白，让内容更聚拢 */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Optima", "Candara", "PingFang SC", sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 全局背景图 */
+        .global-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('com_13.jpg'); 
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 80%, rgba(0,0,0,0.95) 100%);
+            z-index: -1;
+        }
+
+        .page {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px var(--side-gap) 120px; 
+            animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .page.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 封面页 */
+        .cover {
+            justify-content: center;
+            text-align: center;
+        }
+        .cover h1 {
+            font-size: 1.6rem;
+            letter-spacing: 0.5rem;
+            color: var(--accent-color);
+            font-weight: 200;
+            margin-bottom: 12px;
+            text-shadow: 0 0 12px rgba(165, 180, 252, 0.3);
+        }
+        .btn-start {
+            margin-top: 40px;
+            padding: 12px 30px;
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            background: rgba(165, 180, 252, 0.05);
+            cursor: pointer;
+        }
+
+        /* 内容区 */
+        .img-box {
+            width: 100%;
+            height: 38vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .img-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .text-box {
+            width: 100%;
+            max-width: 380px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .text-box h3 {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--accent-color); 
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            line-height: 1.5;
+            text-align: left; /* 换行左对齐 */
+            width: 100%; 
+            border-left: 2px solid rgba(165, 180, 252, 0.2);
+            padding-left: 12px;
+        }
+
+        .text-box p {
+            font-size: 0.82rem;
+            color: var(--text-color);
+            line-height: 1.8;
+            text-align: justify; 
+            font-weight: 300;
+            width: 100%;
+        }
+
+        /* 底部导航优化 */
+        .footer-nav {
+            position: absolute;
+            bottom: 60px; /* 向上移动 */
+            width: calc(100% - (var(--side-gap) * 2));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .page-num {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: #555;
+        }
+
+        .nav-arrow {
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px; /* 向左微移 */
+            border: 1px solid rgba(165, 180, 252, 0.15);
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+        }
+        .nav-arrow svg {
+            width: 18px;
+            stroke: var(--accent-color);
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="global-background"></div>
+    <div class="background-overlay"></div>
+
+    <div class="page cover active" id="page-0">
+        <h1>THE GLASS UNIVERSE</h1>
+        <p style="letter-spacing: 3px; opacity: 0.4; font-size: 0.7rem;">玻璃底片上的宇宙</p>
+        <div class="btn-start" onclick="nextPage()">关于她们和星星</div>
+    </div>
+
+    <div id="content-container"></div>
+
+    <div class="footer-nav" id="ui-nav" style="display: none;">
+        <div class="page-num" id="page-display">01 / 11</div>
+        <div class="nav-arrow" onclick="nextPage()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            {
+                img: "comp_1.jpg",
+                caption: "哈佛计算员们在工作，1898年",
+                content: "19世纪末，哈佛天文台雇佣了一群女性担任计算员。她们的工作内容包括测量恒星的位置，以及在玻璃底片照片上分析恒星光谱。她们通过三角学，将恒星的X-Y坐标一丝不苟地转换为赤经和赤纬，最终编录了85.5万颗恒星。计算室主管威廉明娜·弗莱明（Williamina Paton Fleming）是一位能干的数学家，她负责审核工作并亲自发表研究成果。"
+            },
+            {
+                img: "comp_2.jpg",
+                caption: "哈佛大学天文台的计算机工作人员，约1891年",
+                content: "她们被称为“哈佛计算机”，其中有几位拥有物理学、化学和数学学位，还是职业科学家的女儿或侄女。她们抓住机会投身专业天文学领域，甚至愿意无偿工作。当时哈佛天文台陷入财务困境，台长爱德华·皮克林（Edward Charles Pickering）曾提出，他可以用一名男性天文学家的薪水雇佣10名女性。最终，他向这些女性提供的工资是每小时25美分。"
+            },
+            {
+                img: "comp_3.jpg",
+                caption: "一群女性在哈佛大学天文台处理天文数据",
+                content: "尽管当时社会对女性参与科学带有偏见，甚至戏称她们为“皮克林的后宫”，但她们的工作室却成为了现代天体物理学的摇篮。她们不仅是数据的处理者，更是恒星分类体系的奠基者。"
+            },
+            {
+                img: "comp_4.jpg",
+                caption: "安妮·坎农坐在桌前，她发明了恒星光谱分类系统",
+                content: "安妮·坎农（Annie Jump Cannon）是哈佛计算员中最具代表性的面孔。她拥有惊人的效率，能在几秒钟内通过肉眼识别光谱特征。她一生分类了约35万颗恒星，并创造了“OBAFGKM”分类系统。这一系统不仅解决了恒星演化的混乱分类，更成为了全球天文学家通用的“宇宙语言”。"
+            },
+            {
+                img: "comp_5.jpg",
+                caption: "墨尔本天文测量局的“人工计算机”正在计算照相底片上恒星的位置，1901年",
+                content: "墨尔本天文台负责“天图计划”中的南天部分星图。1898年，他们建立了一个由女性组成的“星体测量局”（Star Measuring Bureau），这是澳大利亚最早雇佣女性从事天文工作的机构之一。夏洛特·皮尔（Charlotte Emily Fforde Peel）是其中的佼佼者，1900年成为澳大利亚首位在天文学领域获得永久职位的女性。"
+            },
+            {
+                img: "comp_6.jpg",
+                caption: "墨尔本天文台的一名助理“计算机”正在参与天文观测仪项目，约1905年",
+                content: "该照片记录的1905年左右墨尔本天文台的一名助理“计算机”正在参与天文观测仪项目。当时的报道指出，每位女性需要通过预科考试，并经过约六个月的培训才能达到熟练程度，理想状态下每天可测量约400颗恒星。"
+            },
+            {
+                img: "comp_7.jpg",
+                caption: "爱丁堡皇家天文台的女性计算员",
+                content: "1909年，爱丁堡皇家天文台为参与“天图计划”项目引入女计算员。首批受雇者中包括福尔科纳姐妹（Falconer sisters）。在接下来的几十年里，共有18名女性受雇于这一项目。天体物理学博士玛丽·布鲁克（Mary Bruck）1957年加入该天文台。退休后，她整理了大量历史记录，其中包括一份关于女性天文学家的档案，至今仍保存在皇家天文台的档案馆中。"
+            },
+            {
+                img: "comp_8.jpg",
+                caption: "皇家天文台担任计算机员安妮·蒙德",
+                content: "安妮蒙德（Annie Maunder）是剑桥大学培养的数学家。由于当时女性无法获得正式学位，她以计算员身份进入格林威治皇家天文台。她与丈夫共同发现了太阳黑子随时间变化的“蝴蝶图”（butterfly diagram），这至今仍是研究太阳活动周期的核心。1916年，英国皇家天文学会首次接纳女性会员；安妮·蒙德是首批女性会员之一。他在天文科普领域亦有贡献，1908年首次出版《天界及其故事》（The Heavens and Their Story）。虽然该书署名是夫妻二人共同撰写的，但他的丈夫在引言中评论说，这本书“几乎完全是我妻子的作品”。"
+            },
+            {
+                img: "comp_9.jpg",
+                caption: "多萝西娅·克伦普克领导着一支由女性“计算员”组成的团队",
+                content: "1887年，多萝西娅·克伦普克（Dorothea Klumpke）加入巴黎天文台的“天图计划”项目，负责在照相底片上测量恒星坐标。几年后，她成为测量局（Bureau des Mesures）局长（1892-1901），领导着一支由女性“计算员”组成的团队。她撰写了大量评论文章，涵盖天文学的各个领域，以及科学史方面的文章，尤其关注女性在科学史上的地位。"
+            },
+            {
+                img: "comp_10.jpg",
+                caption: "法国图卢兹天文台的“计算员”",
+                content: "法国图卢兹天文台负责其中一片天区的测绘工作，从1891年持续到1960年代，每年拍摄400至500张底片，测量了25,000至30,000颗恒星的位置。从1899年起，资深计算员如萨勒夫人（Mme Salle）、普若尔小姐（Melle Pujol）、拉勒芒小姐（Melle Lallemand）和蓬斯小姐（Melle Pons）终于获得正式员工身份——但她们被永远困在计算岗位上，没有任何晋升希望。"
+            },
+            {
+                img: "comp_11.jpg",
+                caption: "梵蒂冈圣童玛丽修女会的成员们使用显微镜测量恒星位置",
+                content: "约1910年代，四位圣婴玛利亚修女——埃米莉娅·蓬佐尼（Emilia Ponzoni）、雷吉娜·科伦坡（Regina Colombo）、孔切塔·菲纳尔迪（Concetta Finardi）和路易贾·潘切里（Luigia Panceri）——在专门布置的暗室内，借助显微镜与显微测微计，对玻璃照相干版上的星点进行精密测量。她们耗时十余载，共同完成了481,215颗天体的位置与亮度测定，为梵蒂冈的星空图册奠定了数据基石。这些照片曾长期无人知晓身份，直到近年研究人员发现了她们的名字，并以这四位修女的名字命名了四颗小行星以示纪念。"
+            }
+        ];
+
+        let currentIndex = -1;
+
+        function nextPage() {
+            if (currentIndex === -1) {
+                document.getElementById('page-0').style.display = 'none';
+                document.getElementById('ui-nav').style.display = 'flex';
+            }
+            currentIndex++;
+            if (currentIndex >= data.length) {
+                currentIndex = -1;
+                document.getElementById('page-0').style.display = 'flex';
+                document.getElementById('ui-nav').style.display = 'none';
+                document.getElementById('content-container').innerHTML = '';
+                return;
+            }
+            render(currentIndex);
+        }
+
+        function render(index) {
+            const item = data[index];
+            const container = document.getElementById('content-container');
+            container.innerHTML = `
+                <div class="page active">
+                    <div class="img-box">
+                        <img src="${item.img}" alt="exhibit">
+                    </div>
+                    <div class="text-box">
+                        <h3>${item.caption}</h3>
+                        <p>${item.content}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('page-display').innerText = `${(index + 1).toString().padStart(2, '0')} / 11`;
+        }
+    </script>
+</body>
+</html>
