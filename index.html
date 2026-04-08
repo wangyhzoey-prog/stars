@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>THE GLASS UNIVERSE</title>
     <style>
         :root {
@@ -46,12 +46,18 @@
         .page {
             position: absolute;
             top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             display: none;
             flex-direction: column;
             align-items: center;
-            padding: 40px var(--side-gap) 120px; 
+            justify-content: flex-start;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: calc(24px + env(safe-area-inset-top)) var(--side-gap) calc(130px + env(safe-area-inset-bottom));
             animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            scrollbar-gutter: stable both-edges;
         }
 
         .page.active { display: flex; }
@@ -88,15 +94,17 @@
         /* 内容区 */
         .img-box {
             width: 100%;
-            height: 38vh;
+            flex: 0 0 auto;
+            min-height: 180px;
+            max-height: min(44vh, 460px);
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 18px;
         }
         .img-box img {
             max-width: 100%;
-            max-height: 100%;
+            max-height: min(42vh, 430px);
             object-fit: contain;
         }
 
@@ -109,22 +117,22 @@
         }
 
         .text-box h3 {
-            font-size: 0.9rem;
+            font-size: clamp(0.9rem, 0.82rem + 0.35vw, 1.02rem);
             font-weight: 400;
             color: var(--accent-color); 
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             letter-spacing: 1px;
-            line-height: 1.5;
-            text-align: left; /* 换行左对齐 */
+            line-height: 1.55;
+            text-align: left;
             width: 100%; 
             border-left: 2px solid rgba(165, 180, 252, 0.2);
             padding-left: 12px;
         }
 
         .text-box p {
-            font-size: 0.82rem;
+            font-size: clamp(0.84rem, 0.78rem + 0.3vw, 0.98rem);
             color: var(--text-color);
-            line-height: 1.8;
+            line-height: 1.85;
             text-align: justify; 
             font-weight: 300;
             width: 100%;
@@ -132,13 +140,15 @@
 
         /* 底部导航优化 */
         .footer-nav {
-            position: absolute;
-            bottom: 60px; /* 向上移动 */
-            width: calc(100% - (var(--side-gap) * 2));
+            position: fixed;
+            bottom: calc(28px + env(safe-area-inset-bottom));
+            left: var(--side-gap);
+            right: var(--side-gap);
+            width: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 10;
+            z-index: 20;
         }
 
         .page-num {
@@ -164,12 +174,77 @@
             stroke: var(--accent-color);
             stroke-width: 2;
         }
+
+
+        /* 每页滚动进度条 */
+        #page-scroll-progress {
+            position: fixed;
+            right: 8px;
+            top: calc(64px + env(safe-area-inset-top));
+            bottom: calc(64px + env(safe-area-inset-bottom));
+            width: 4px;
+            border-radius: 999px;
+            background: rgba(165, 180, 252, 0.2);
+            z-index: 30;
+            pointer-events: none;
+        }
+        #page-scroll-progress-bar {
+            display: block;
+            width: 100%;
+            height: 0%;
+            border-radius: inherit;
+            background: var(--accent-color);
+            transition: height 0.12s linear;
+        }
+
+        .page::-webkit-scrollbar { width: 6px; }
+        .page::-webkit-scrollbar-track { background: transparent; }
+        .page::-webkit-scrollbar-thumb { background: rgba(165, 180, 252, 0.4); border-radius: 999px; }
+
+        @media (max-width: 768px) {
+            :root { --side-gap: 8%; }
+
+            .page {
+                padding: calc(18px + env(safe-area-inset-top)) var(--side-gap) calc(124px + env(safe-area-inset-bottom));
+            }
+
+            .img-box {
+                min-height: 150px;
+                max-height: min(40vh, 320px);
+                margin-bottom: 14px;
+            }
+            .img-box img {
+                max-height: min(38vh, 300px);
+            }
+
+            .cover h1 {
+                font-size: clamp(1.2rem, 4.8vw, 1.6rem);
+                letter-spacing: 0.28rem;
+            }
+
+            #page-scroll-progress {
+                right: 4px;
+                width: 3px;
+                top: calc(54px + env(safe-area-inset-top));
+                bottom: calc(54px + env(safe-area-inset-bottom));
+            }
+
+            .footer-nav {
+                bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="global-background"></div>
     <div class="background-overlay"></div>
+    <div id="page-scroll-progress"><span id="page-scroll-progress-bar"></span></div>
 
     <div class="page cover active" id="page-0">
         <h1>THE GLASS UNIVERSE</h1>
@@ -243,25 +318,58 @@
             {
                 img: "comp_11.jpg",
                 caption: "梵蒂冈圣婴玛丽修女会的成员们使用显微镜测量恒星位置",
-                content: "约1910年代，四位圣婴玛利亚修女——埃米莉娅·蓬佐尼（Emilia Ponzoni）、雷吉娜·科伦坡（Regina Colombo）、孔切塔·菲纳尔迪（Concetta Finardi）和路易贾·潘切里（Luigia Panceri）——在专门布置的暗室内，借助显微镜与显微测微计，对玻璃照相干版上的星点进行精密测量。她们耗时十余载，共同完成了481215颗天体的位置与亮度测定，为梵蒂冈的星空图册奠定了数据基石。这些照片曾长期无人知晓身份，直到近年研究人员发现了她们的名字，并以这四位修女的名字命名了四颗小行星以示纪念。"
+                content: "约1910年代，四位圣婴玛利修女——埃米莉娅·蓬佐尼（Emilia Ponzoni）、雷吉娜·科伦坡（Regina Colombo）、孔切塔·菲纳尔迪（Concetta Finardi）和路易贾·潘切里（Luigia Panceri）——在专门布置的暗室内，借助显微镜与显微测微计，对玻璃照相干版上的星点进行精密测量。她们耗时十余载，共同完成了481215颗天体的位置与亮度测定，为梵蒂冈的星空图册奠定了数据基石。这些照片曾长期无人知晓身份，直到近年研究人员发现了她们的名字，并以这四位修女的名字命名了四颗小行星以示纪念。"
             }
         ];
 
         let currentIndex = -1;
 
-        function nextPage() {
-            if (currentIndex === -1) {
-                document.getElementById('page-0').style.display = 'none';
-                document.getElementById('ui-nav').style.display = 'flex';
-            }
-            currentIndex++;
-            if (currentIndex >= data.length) {
-                currentIndex = -1;
-                document.getElementById('page-0').style.display = 'flex';
-                document.getElementById('ui-nav').style.display = 'none';
-                document.getElementById('content-container').innerHTML = '';
+        function updatePageScrollProgress() {
+            const activePage = document.querySelector('.page.active');
+            const bar = document.getElementById('page-scroll-progress-bar');
+            const wrap = document.getElementById('page-scroll-progress');
+            if (!activePage || !bar || !wrap) return;
+
+            const maxScroll = activePage.scrollHeight - activePage.clientHeight;
+            if (maxScroll <= 1) {
+                bar.style.height = '100%';
+                wrap.style.opacity = 0.25;
                 return;
             }
+
+            const ratio = Math.min(1, Math.max(0, activePage.scrollTop / maxScroll));
+            bar.style.height = (ratio * 100) + '%';
+            wrap.style.opacity = 0.9;
+        }
+
+        function bindActivePageScroll() {
+            const activePage = document.querySelector('.page.active');
+            if (!activePage) return;
+            activePage.addEventListener('scroll', updatePageScrollProgress, { passive: true });
+            updatePageScrollProgress();
+        }
+
+        function nextPage() {
+            if (currentIndex === -1) {
+                const cover = document.getElementById('page-0');
+                cover.style.display = 'none';
+                cover.classList.remove('active');
+                document.getElementById('ui-nav').style.display = 'flex';
+            }
+
+            currentIndex++;
+
+            if (currentIndex >= data.length) {
+                currentIndex = -1;
+                const cover = document.getElementById('page-0');
+                cover.style.display = 'flex';
+                cover.classList.add('active');
+                document.getElementById('ui-nav').style.display = 'none';
+                document.getElementById('content-container').innerHTML = '';
+                updatePageScrollProgress();
+                return;
+            }
+
             render(currentIndex);
         }
 
@@ -269,7 +377,7 @@
             const item = data[index];
             const container = document.getElementById('content-container');
             container.innerHTML = `
-                <div class="page active">
+                <div class="page active" id="page-content-current">
                     <div class="img-box">
                         <img src="${item.img}" alt="exhibit">
                     </div>
@@ -280,7 +388,16 @@
                 </div>
             `;
             document.getElementById('page-display').innerText = `${(index + 1).toString().padStart(2, '0')} / 11`;
+
+            const page = document.getElementById('page-content-current');
+            if (page) page.scrollTop = 0;
+            bindActivePageScroll();
         }
+
+        window.addEventListener('load', () => {
+            updatePageScrollProgress();
+        });
     </script>
 </body>
 </html>
+
